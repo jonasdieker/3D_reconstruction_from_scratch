@@ -12,7 +12,7 @@ The first goal of this project is to provide a modular way to the 3D reconstruct
 
 ## Determine Relativ Transformation of Cameras
 
- - computing fundamental matrix F from point correspondences using coplanarity constraint $x'^T F x'' = 0$
+ - computing fundamental matrix E from point correspondences using coplanarity constraint $x'^T E x'' = 0$
  - obtain a homogeneous linear system -> solve using SVD
  - From E -> R, b but not the scale of baseline
 
