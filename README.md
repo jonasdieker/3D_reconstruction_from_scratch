@@ -1,6 +1,6 @@
 # Depth Reconstruction from Scratch
 
-The first goal of this project is to provide a modular way to the 3D reconstruction problem. Any of the intermediate steps listed below can be replaced by different algorithms of the same task. The second goal is to write these function from scratch, i.e. using numpy only.
+The first goal of this project is to provide a modular way to the 3D reconstruction problem. Any of the intermediate steps listed below can be replaced by different algorithms of the same task. The second goal is to write everything from scratch, i.e. using numpy only.
 
 ## Feature Matching
 
@@ -14,7 +14,7 @@ The first goal of this project is to provide a modular way to the 3D reconstruct
 
  - computing fundamental matrix E from point correspondences using coplanarity constraint $x'^T E x'' = 0$
  - obtain a homogeneous linear system -> solve using SVD
- - From E -> R, b but not the scale of baseline
+ - From E can recover R, b but not the scale
 
 ## Depth Reconstruction
 
