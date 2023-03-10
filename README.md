@@ -4,23 +4,27 @@ The first goal of this project is to provide a modular way to the 3D reconstruct
 
 ## Feature Matching
 
- - corner detection (Shi-Tomasi)
- - feature descriptor (Histogram of Oriented Gradients)
- - finding feature correspondences
+ - Corner detection (Shi-Tomasi)
+ - Feature descriptor (Histogram of Oriented Gradients)
+ - Finding feature correspondences
 
 ![key_point_matching](assets/key_point_matching.png)
 
-## Determine Relativ Transformation of Cameras
+## Determine Relativ Transformation of Cameras (Direct Approach)
 
- - computing fundamental matrix E from point correspondences using coplanarity constraint $x'^T E x'' = 0$
- - obtain a homogeneous linear system -> solve using SVD
- - From E can recover R, b but not the scale
+ - Computing fundamental matrix E from point correspondences using coplanarity constraint $x'^T E x'' = 0$
+ - Solve least squares problem to find E
+ - From E can recover R, T but not the scale
 
 ## Depth Reconstruction
 
- - Triangulation
+ - Recover the scaling by again leveraging a linear sytem of $n$ equations:
 
+$$  M \lambda = 0 \rightarrow  \min_{\lambda} || M \lambda ||^2 = \min_{\lambda} (M \lambda)^{\top} M \lambda \;\; s.t. \; |\lambda| = 1 $$
+
+- Scaling is still only defined up to a global scale (cannot distinguish between camera having moved by $d$ or $2d$.)
 
 ## Future Extensions
 
+- [ ] using an iterative approach (e.g. RANSAC) to obtain a probabilistically better E
 - [ ] bundle adjustments -> going from a pair of images to n many images
