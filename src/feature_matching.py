@@ -186,6 +186,18 @@ def compute_matches(descr1, descr2, ratio=0.6):
     return matches
 
 
+def get_matching_points(matches: list[list[int]], pts1: np.ndarray, pts2: np.ndarray):
+    """Uses indices from compute_matches to recover the matches point coordinates."""
+
+    matches1 = np.array(matches, dtype=int)[:, 0]
+    matches2 = np.array(matches, dtype=int)[:, 1]
+
+    pts1 = pts1[matches1]
+    pts2 = pts2[matches2]
+
+    return pts1, pts2
+
+
 def visualise_corners(image, corners):
     print(f"Detected {len(corners)} corners.")
     fig = plt.figure(figsize=(5, 5), dpi=100)
