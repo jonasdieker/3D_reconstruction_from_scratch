@@ -1,24 +1,27 @@
 import numpy as np
 
 
-class EssentialMatrix:
+class CalcEssentialMatrix:
+    """Takes two sets of corresponding points and calculates the essential matrix E."""
+
     def __init__(self, pts1, pts2):
 
-        # make 2D coords homogeneous
-        pts1 = self._make_2D_coords_homogeneous(pts1)
-        pts2 = self._make_2D_coords_homogeneous(pts2)
-        self.pts1, self.pts2 = pts1, pts2
+        self.pts1 = self._make_2D_coords_homogeneous(pts1)
+        self.pts2 = self._make_2D_coords_homogeneous(pts2)
+        self.E = None
 
     def calc_E(self):
         """
-        Uses the coplanarity constraint. Turned into least squares problem by flattening F.
+        Uses the coplanarity constraint to calculate E.
+        Turned into least squares problem by first flattening E computing its values then reshaping.
 
-        Returns the 3x3 fundamental matrix.
+        Returns the 3x3 essential matrix.
         """
 
-        # normalise coordinates to be zero centred and scaled to range [-1, 1]
-        pts1, _ = self._map_coords_to_interval(self.pts1, (-1, 1))
-        pts2, _ = self._map_coords_to_interval(self.pts2, (-1, 1))
+        # # normalise coordinates to be zero centred and scaled to range [-1, 1]
+        # pts1, _ = self._map_coords_to_interval(self.pts1, (-1, 1))
+        # pts2, _ = self._map_coords_to_interval(self.pts2, (-1, 1))
+        pts1, pts2 = self.pts1, self.pts2
 
         # obtain N many equations stacked in A
         A = np.asarray([np.kron(pts2[i], pts1[i]) for i in range(len(pts1))])
@@ -38,13 +41,36 @@ class EssentialMatrix:
         svd = np.linalg.svd(E)
         svd[1][0], svd[1][1], svd[1][2] = 1, 1, 0
         E = svd[0] @ np.diag(svd[1]) @ svd[2]
+        self.E = E
         return E
 
-    def extract_R_b(self, E: np.ndarray):
-        R, b = 0, 0
-        return R, b
+    def extract_R_T(self):
+        """Two possible solutions -> only one provides positive depth.
+        Therefore try both and see which one returns a legal depth."""
 
-    def _make_2D_coords_homogeneous(self, coords: np.ndarray):
+        U, Sig, VT = np.linalg.svd(self.E)  # type: ignore
+        R_z_90 = np.zeros((3, 3))
+        R_z_90[0, 1], R_z_90[1, 0], R_z_90[2, 2] = 1, -1, 1
+
+        # two possible solutions
+        T_hat1, R1 = U @ R_z_90 @ np.diag(Sig) @ U.T, U @ R_z_90.T @ VT
+        T_hat2, R2 = (
+            U @ np.linalg.inv(R_z_90) @ np.diag(Sig) @ U.T,
+            U @ np.linalg.inv(R_z_90).T @ VT,
+        )
+
+        T1 = np.array([T_hat1[1, 0], T_hat1[0, 2], T_hat1[2, 1]])
+        T2 = np.array([T_hat2[1, 0], T_hat2[0, 2], T_hat2[2, 1]])
+
+        # check which solution yields a positive depth
+        test_pt = self.pts1[0]
+        X1 = R1 @ test_pt + T1
+        X2 = R2 @ test_pt + T2
+
+        return (R1, T1) if X1[-1] >= 0 else (R2, T2)
+
+    @staticmethod
+    def _make_2D_coords_homogeneous(coords: np.ndarray):
         padded_coords = np.ones((coords.shape[0], coords.shape[1] + 1), dtype=int)
         padded_coords[:, :2] = coords
         return padded_coords
