@@ -12,7 +12,7 @@ The first goal of this project is to provide a modular way to the 3D reconstruct
 
 ## Determine Relativ Transformation of Cameras (Direct Approach)
 
- - Computing fundamental matrix E from point correspondences using coplanarity constraint $x'^T E x'' = 0$
+ - Computing essential matrix E from point correspondences using coplanarity constraint $x'^T E x'' = 0$
  - Solve least squares problem to find E
  - From E can recover R, T but not the scale
 
